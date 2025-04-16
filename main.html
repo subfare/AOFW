@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALBUM OF THE WEEK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .album-cover {
+            transition: transform 0.3s ease;
+        }
+        .album-cover:hover {
+            transform: scale(1.03);
+        }
+        .change-album-btn {
+            transition: all 0.3s ease;
+        }
+        .change-album-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .track-item {
+            transition: background-color 0.2s ease;
+        }
+        .track-item:hover {
+            background-color: rgba(75, 85, 99, 0.5);
+        }
+        .filter-btn {
+            background-color: #374151;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background-color: #3B82F6;
+        }
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+        .song-item {
+            transition: transform 0.2s ease;
+        }
+        .song-item:hover {
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-12 text-center">
+            <h1 class="text-5xl font-bold mb-2 bg-gradient-to-r from-purple-500 to-blue-500 bg-clip-text text-transparent">ALBUM OF THE WEEK</h1>
+            <p class="text-gray-400 text-xl">RATED BY @SUBFARE</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Album Info Section -->
+            <div class="flex flex-col items-center">
+                <button id="changeAlbumBtn" class="change-album-btn bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full font-semibold mb-6">
+                    <i class="fas fa-random mr-2"></i> Random Rated Album
+                </button>
+                
+                <img id="albumCover" src="https://via.placeholder.com/500x500" alt="Album Cover" class="album-cover w-80 h-80 rounded-lg shadow-2xl mb-6">
+                
+                <h2 id="albumTitle" class="text-3xl font-bold mb-1">Album Title</h2>
+                <p id="albumArtist" class="text-xl text-gray-300 mb-2">Artist Name</p>
+                <p id="albumRelease" class="text-gray-400 mb-4">Released: January 1, 2023</p>
+                <div class="flex items-center">
+                    <span class="text-yellow-400 mr-2"><i class="fas fa-star"></i></span>
+                    <span id="albumRating" class="font-semibold">4.5</span>
+                    <span class="text-gray-400 ml-1">/ 5</span>
+                </div>
+                <div class="mt-6">
+                    <span id="albumGenre" class="bg-gray-700 px-3 py-1 rounded-full text-sm">Genre</span>
+                </div>
+            </div>
+
+            <!-- Tracks Section -->
+            <div>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold">Tracklist</h3>
+                </div>
+                
+                <div id="tracksContainer" class="space-y-3">
+                    <!-- Tracks will be added here by JavaScript -->
+                </div>
+
+                <div class="mt-8 bg-gray-800 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-music mr-2"></i> Browse Music Catalog
+                    </h3>
+                    <p class="text-gray-400 mb-4">Explore all tracks sorted by rating, genre, or alphabetically</p>
+                    <button id="browseAllBtn" class="w-full bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold flex items-center justify-center">
+                        <i class="fas fa-list mr-2"></i> Browse All Tracks
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Browse All Modal -->
+    <div id="browseModal" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 rounded-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold">Music Catalog Explorer</h2>
+                <button id="closeModalBtn" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold mb-2">Filter by Genre:</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="filter-btn active" data-filter="all">All Genres</button>
+                        <button class="filter-btn" data-filter="rock">Rock</button>
+                        <button class="filter-btn" data-filter="electronic">Electronic</button>
+                        <button class="filter-btn" data-filter="hiphop">Hip Hop</button>
+                        <button class="filter-btn" data-filter="metal">Metal</button>
+                        <button class="filter-btn" data-filter="pop">Pop</button>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h3 class="text-lg font-semibold mb-2">Sort Options:</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="sortRatingBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-star mr-2"></i> Highest Rated
+                        </button>
+                        <button id="sortAlphaBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-sort-alpha-down mr-2"></i> A-Z
+                        </button>
+                        <button id="sortAlbumBtn" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg flex items-center">
+                            <i class="fas fa-compact-disc mr-2"></i> By Album
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="allSongsContainer" class="space-y-2">
+                <!-- All songs will be added here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Music Database
+        const musicDatabase = [
+            // Rock Albums
+            {
+                title: "Dark Side of the Moon",
+                artist: "Pink Floyd",
+                cover: "https://upload.wikimedia.org/wikipedia/en/3/3b/Dark_Side_of_the_Moon.png",
+                release: "March 1, 1973",
+                rating: 5,
+                genre: "Rock",
+                tracks: [
+                    { name: "Speak to Me", duration: "1:30", rating: 4 },
+                    { name: "Breathe", duration: "2:43", rating: 5 },
+                    { name: "On the Run", duration: "3:30", rating: 4 },
+                    { name: "Time", duration: "6:53", rating: 5 },
+                    { name: "The Great Gig in the Sky", duration: "4:15", rating: 5 },
+                    { name: "Money", duration: "6:22", rating: 5 },
+                    { name: "Us and Them", duration: "7:51", rating: 5 },
+                    { name: "Any Colour You Like", duration: "3:25", rating: 4 },
+                    { name: "Brain Damage", duration: "3:50", rating: 5 },
+                    { name: "Eclipse", duration: "2:03", rating: 5 }
+                ]
+            },
+            {
+                title: "Abbey Road",
+                artist: "The Beatles",
+                cover: "https://upload.wikimedia.org/wikipedia/en/4/42/Beatles_-_Abbey_Road.jpg",
+                release: "September 26, 1969",
+                rating: 5,
+                genre: "rock",
+                tracks: [
+                    { name: "Come Together", duration: "4:20", rating: 5 },
+                    { name: "Something", duration: "3:03", rating: 5 },
+                    { name: "Maxwell's Silver Hammer", duration: "3:27", rating: 4 },
+                    { name: "Oh! Darling", duration: "3:27", rating: 4 },
+                    { name: "Octopus's Garden", duration: "2:51", rating: 4 },
+                    { name: "I Want You (She's So Heavy)", duration: "7:47", rating: 5 },
+                    { name: "Here Comes the Sun", duration: "3:05", rating: 5 },
+                    { name: "Because", duration: "2:45", rating: 4 },
+                    { name: "You Never Give Me Your Money", duration: "4:02", rating: 4 },
+                    { name: "Sun King", duration: "2:26", rating: 4 },
+                    { name: "Mean Mr. Mustard", duration: "1:06", rating: 3 },
+                    { name: "Polythene Pam", duration: "1:12", rating: 3 },
+                    { name: "She Came In Through the Bathroom Window", duration: "1:57", rating: 4 },
+                    { name: "Golden Slumbers", duration: "1:31", rating: 4 },
+                    { name: "Carry That Weight", duration: "1:36", rating: 4 }
+                ]
+            },
+            {
+                title: "Led Zeppelin IV",
+                artist: "Led Zeppelin",
+                cover: "https://upload.wikimedia.org/wikipedia/en/2/26/Led_Zeppelin_-_Led_Zeppelin_IV.jpg",
+                release: "November 8, 1971",
+                rating: 5,
+                genre: "rock",
+                tracks: [
+                    { name: "Black Dog", duration: "4:55", rating: 5 },
+                    { name: "Rock and Roll", duration: "3:40", rating: 5 },
+                    { name: "The Battle of Evermore", duration: "5:52", rating: 4 },
+                    { name: "Stairway to Heaven", duration: "8:02", rating: 5 },
+                    { name: "Misty Mountain Hop", duration: "4:38", rating: 4 },
+                    { name: "Four Sticks", duration: "4:45", rating: 4 },
+                    { name: "Going to California", duration: "3:32", rating: 5 },
+                    { name: "When the Levee Breaks", duration: "7:08", rating: 5 }
+                ]
+            },
+            {
+                title: "Back in Black",
+                artist: "AC/DC",
+                cover: "https://upload.wikimedia.org/wikipedia/en/b/be/ACDC_Back_in_Black.png",
+                release: "July 25, 1980",
+                rating: 4.5,
+                genre: "rock",
+                tracks: [
+                    { name: "Hells Bells", duration: "5:12", rating: 5 },
+                    { name: "Shoot to Thrill", duration: "5:17", rating: 4 },
+                    { name: "What Do You Do for Money Honey", duration: "3:35", rating: 4 },
+                    { name: "Givin the Dog a Bone", duration: "3:31", rating: 4 },
+                    { name: "Let Me Put My Love Into You", duration: "4:16", rating: 4 },
+                    { name: "Back in Black", duration: "4:15", rating: 5 },
+                    { name: "You Shook Me All Night Long", duration: "3:30", rating: 5 },
+                    { name: "Have a Drink on Me", duration: "3:58", rating: 4 },
+                    { name: "Shake a Leg", duration: "4:06", rating: 4 },
+                    { name: "Rock and Roll Ain't Noise Pollution", duration: "4:15", rating: 4 }
+                ]
+            },
+            {
+                title: "The Rise and Fall of Ziggy Stardust",
+                artist: "David Bowie",
+                cover: "https://upload.wikimedia.org/wikipedia/en/0/00/David_Bowie_-_The_Rise_and_Fall_of_Ziggy_Stardust.jpg",
+                release: "June 6, 1972",
+                rating: 5,
+                genre: "rock",
+                tracks: [
+                    { name: "Five Years", duration: "4:43", rating: 5 },
+                    { name: "Soul Love", duration: "3:34", rating: 4 },
+                    { name: "Moonage Daydream", duration: "4:40", rating: 5 },
+                    { name: "Starman", duration: "4:10", rating: 5 },
+                    { name: "It Ain't Easy", duration: "2:58", rating: 3 },
+                    { name: "Lady Stardust", duration: "3:22", rating: 4 },
+                    { name: "Star", duration: "2:47", rating: 4 },
+                    { name: "Hang On to Yourself", duration: "2:40", rating: 4 },
+                    { name: "Ziggy Stardust", duration: "3:13", rating: 5 },
+                    { name: "Suffragette City", duration: "3:25", rating: 5 },
+                    { name: "Rock 'n' Roll Suicide", duration: "2:58", rating: 5 }
+                ]
+            },
+            // Electronic Albums
+            {
+                title: "Random Access Memories",
+                artist: "Daft Punk",
+                cover: "https://upload.wikimedia.org/wikipedia/en/a/a7/Random_Access_Memories.jpg",
+                release: "May 17, 2013",
+                rating: 4.5,
+                genre: "electronic",
+                tracks: [
+                    { name: "Give Life Back to Music", duration: "4:35", rating: 4 },
+                    { name: "The Game of Love", duration: "3:21", rating: 4 },
+                    { name: "Giorgio by Moroder", duration: "9:04", rating: 5 },
+                    { name: "Within", duration: "3:48", rating: 4 },
+                    { name: "Instant Crush", duration: "5:37", rating: 5 },
+                    { name: "Lose Yourself to Dance", duration: "5:53", rating: 4 },
+                    { name: "Touch", duration: "8:18", rating: 4 },
+                    { name: "Get Lucky", duration: "6:09", rating: 5 },
+                    { name: "Beyond", duration: "4:50", rating: 4 },
+                    { name: "Motherboard", duration: "5:41", rating: 4 },
+                    { name: "Fragments of Time", duration: "4:39", rating: 4 },
+                    { name: "Doin' It Right", duration: "4:11", rating: 4 },
+                    { name: "Contact", duration: "6:21", rating: 5 }
+                ]
+            },
+            {
+                title: "Discovery",
+                artist: "Daft Punk",
+                cover: "https://upload.wikimedia.org/wikipedia/en/2/27/Daft_Punk_-_Discovery.png",
+                release: "March 12, 2001",
+                rating: 5,
+                genre: "electronic",
+                tracks: [
+                    { name: "One More Time", duration: "5:20", rating: 5 },
+                    { name: "Aerodynamic", duration: "3:32", rating: 5 },
+                    { name: "Digital Love", duration: "5:01", rating: 5 },
+                    { name: "Harder, Better, Faster, Stronger", duration: "3:45", rating: 5 },
+                    { name: "Crescendolls", duration: "3:31", rating: 4 },
+                    { name: "Nightvision", duration: "1:44", rating: 3 },
+                    { name: "Superheroes", duration: "3:57", rating: 4 },
+                    { name: "High Life", duration: "3:22", rating: 4 },
+                    { name: "Something About Us", duration: "3:51", rating: 5 },
+                    { name: "Voyager", duration: "3:47", rating: 4 },
+                    { name: "Veridis Quo", duration: "5:45", rating: 5 },
+                    { name: "Short Circuit", duration: "3:26", rating: 3 },
+                    { name: "Face to Face", duration: "4:00", rating: 5 },
+                    { name: "Too Long", duration: "10:00", rating: 4 }
+                ]
+            },
+            {
+                title: "Music Has the Right to Children",
+                artist: "Boards of Canada",
+                cover: "https://upload.wikimedia.org/wikipedia/en/5/5c/Boards_of_Canada_-_Music_Has_the_Right_to_Children.jpg",
+                release: "April 20, 1998",
+                rating: 4.5,
+                genre: "electronic",
+                tracks: [
+                    { name: "Wildlife Analysis", duration: "1:18", rating: 3 },
+                    { name: "An Eagle in Your Mind", duration: "4:50", rating: 5 },
+                    { name: "The Color of the Fire", duration: "1:23", rating: 3 },
+                    { name: "Telephasic Workshop", duration: "6:35", rating: 5 },
+                    { name: "Triangles & Rhombuses", duration: "1:50", rating: 3 },
+                    { name: "Sixtyten", duration: "5:48", rating: 4 },
+                    { name: "Turquoise Hexagon Sun", duration: "5:07", rating: 5 },
+                    { name: "Kaini Industries", duration: "0:59", rating: 3 },
+                    { name: "Bocuma", duration: "1:35", rating: 3 },
+                    { name: "Roygbiv", duration: "2:31", rating: 5 },
+                    { name: "Rue the Whirl", duration: "6:06", rating: 4 },
+                    { name: "Aquarius", duration: "5:18", rating: 4 },
+                    { name: "Olson", duration: "1:31", rating: 4 },
+                    { name: "Pete Standing Alone", duration: "6:07", rating: 4 },
+                    { name: "Smokes Quantity", duration: "3:07", rating: 3 }
+                ]
+            },
+            {
+                title: "Selected Ambient Works 85-92",
+                artist: "Aphex Twin",
+                cover: "https://upload.wikimedia.org/wikipedia/en/6/62/Selected_Ambient_Works_85-92.jpg",
+                release: "February 9, 1992",
+                rating: 5,
+                genre: "electronic",
+                tracks: [
+                    { name: "Xtal", duration: "4:53", rating: 5 },
+                    { name: "Tha", duration: "9:07", rating: 4 },
+                    { name: "Pulsewidth", duration: "3:48", rating: 4 },
+                    { name: "Ageispolis", duration: "5:23", rating: 5 },
+                    { name: "i", duration: "1:17", rating: 3 },
+                    { name: "Green Calx", duration: "6:05", rating: 4 },
+                    { name: "Heliosphan", duration: "4:53", rating: 5 },
+                    { name: "We Are the Music Makers", duration: "7:43", rating: 4 },
+                    { name: "Schottkey 7th Path", duration: "6:08", rating: 4 },
+                    { name: "Hedphelym", duration: "6:05", rating: 4 },
+                    { name: "Delphium", duration: "5:26", rating: 4 },
+                    { name: "Actium", duration: "7:32", rating: 4 }
+                ]
+            },
+            {
+                title: "Cross",
+                artist: "Justice",
+                cover: "https://upload.wikimedia.org/wikipedia/en/4/4c/Justice_-_Cross.png",
+                release: "June 11, 2007",
+                rating: 4.5,
+                genre: "electronic",
+                tracks: [
+                    { name: "Genesis", duration: "3:54", rating: 5 },
+                    { name: "Let There Be Light", duration: "4:55", rating: 4 },
+                    { name: "D.A.N.C.E.", duration: "4:02", rating: 5 },
+                    { name: "Newjack", duration: "3:50", rating: 4 },
+                    { name: "Phantom", duration: "4:22", rating: 5 },
+                    { name: "Phantom Pt. II", duration: "3:20", rating: 4 },
+                    { name: "Valentine", duration: "2:56", rating: 4 },
+                    { name: "Tthhee Ppaarrttyy", duration: "4:03", rating: 4 },
+                    { name: "DVNO", duration: "3:56", rating: 5 },
+                    { name: "Stress", duration: "4:58", rating: 5 },
+                    { name: "Waters of Nazareth", duration: "4:25", rating: 5 },
+                    { name: "One Minute to Midnight", duration: "3:41", rating: 4 }
+                ]
+            },
+            // Hip Hop Albums
+            {
+                title: "To Pimp a Butterfly",
+                artist: "Kendrick Lamar",
+                cover: "https://upload.wikimedia.org/wikipedia/en/f/f6/Kendrick_Lamar_-_To_Pimp_a_Butterfly.png",
+                release: "March 15, 2015",
+                rating: 5,
+                genre: "hiphop",
+                tracks: [
+                    { name: "Wesley's Theory", duration: "4:47", rating: 5 },
+                    { name: "For Free? - Interlude", duration: "2:10", rating: 4 },
+                    { name: "King Kunta", duration: "3:54", rating: 5 },
+                    { name: "Institutionalized", duration: "4:31", rating: 4 },
+                    { name: "These Walls", duration: "5:00", rating: 5 },
+                    { name: "u", duration: "4:28", rating: 5 },
+                    { name: "Alright", duration: "3:39", rating: 5 },
+                    { name: "For Sale? - Interlude", duration: "4:51", rating: 4 },
+                    { name: "Momma", duration: "4:43", rating: 4 },
+                    { name: "Hood Politics", duration: "4:52", rating: 4 },
+                    { name: "How Much a Dollar Cost", duration: "4:21", rating: 5 },
+                    { name: "Complexion (A Zulu Love)", duration: "4:23", rating: 4 },
+                    { name: "The Blacker the Berry", duration: "5:28", rating: 5 },
+                    { name: "You Ain't Gotta Lie (Momma Said)", duration: "4:01", rating: 4 },
+                    { name: "i", duration: "5:36", rating: 5 },
+                    { name: "Mortal Man", duration: "12:07", rating: 5 }
+                ]
+            },
+            {
+                title: "Illmatic",
+                artist: "Nas",
+                cover: "https://upload.wikimedia.org/wikipedia/en/2/27/IllmaticNas.jpg",
+                release: "April 19, 1994",
+                rating: 5,
+                genre: "hiphop",
+                tracks: [
+                    { name: "The Genesis", duration: "1:45", rating: 3 },
+                    { name: "N.Y. State of Mind", duration: "4:54", rating: 5 },
+                    { name: "Life's a Bitch", duration: "3:30", rating: 5 },
+                    { name: "The World Is Yours", duration: "4:50", rating: 5 },
+                    { name: "Halftime", duration: "4:20", rating: 5 },
+                    { name: "Memory Lane (Sittin' in da Park)", duration: "4:08", rating: 5 },
+                    { name: "One Love", duration: "5:25", rating: 5 },
+                    { name: "One Time 4 Your Mind", duration: "3:18", rating: 4 },
+                    { name: "Represent", duration: "4:12", rating: 5 },
+                    { name: "It Ain't Hard to Tell", duration: "3:22", rating: 5 }
+                ]
+            },
+            {
+                title: "My Beautiful Dark Twisted Fantasy",
+                artist: "Kanye West",
+                cover: "https://upload.wikimedia.org/wikipedia/en/b/be/MBDTF_ALT.jpg",
+                release: "November 22, 2010",
+                rating: 5,
+                genre: "hiphop",
+                tracks: [
+                    { name: "Dark Fantasy", duration: "4:40", rating: 5 },
+                    { name: "Gorgeous", duration: "5:57", rating: 5 },
+                    { name: "POWER", duration: "4:52", rating: 5 },
+                    { name: "All of the Lights (Interlude)", duration: "1:02", rating: 3 },
+                    { name: "All of the Lights", duration: "4:59", rating: 5 },
+                    { name: "Monster", duration: "6:18", rating: 5 },
+                    { name: "So Appalled", duration: "6:38", rating: 4 },
+                    { name: "Devil in a New Dress", duration: "5:52", rating: 5 },
+                    { name: "Runaway", duration: "9:08", rating: 5 },
+                    { name: "Hell of a Life", duration: "5:27", rating: 4 },
+                    { name: "Blame Game", duration: "7:49", rating: 4 },
+                    { name: "Lost in the World", duration: "4:16", rating: 5 },
+                    { name: "Who Will Survive in America", duration: "1:38", rating: 4 }
+                ]
+            },
+            {
+                title: "The Low End Theory",
+                artist: "A Tribe Called Quest",
+                cover: "https://upload.wikimedia.org/wikipedia/en/5/53/ATribeCalledQuestTheLowEndTheory.jpg",
+                release: "September 24, 1991",
+                rating: 5,
+                genre: "hiphop",
+                tracks: [
+                    { name: "Excursions", duration: "3:53", rating: 5 },
+                    { name: "Buggin' Out", duration: "3:38", rating: 5 },
+                    { name: "Rap Promoter", duration: "2:13", rating: 4 },
+                    { name: "Butter", duration: "3:39", rating: 4 },
+                    { name: "Verses from the Abstract", duration: "3:59", rating: 4 },
+                    { name: "Show Business", duration: "3:53", rating: 4 },
+                    { name: "Vibes and Stuff", duration: "4:18", rating: 5 },
+                    { name: "The Infamous Date Rape", duration: "2:54", rating: 4 },
+                    { name: "Check the Rhime", duration: "3:36", rating: 5 },
+                    { name: "Everything Is Fair", duration: "2:59", rating: 4 },
+                    { name: "Jazz (We've Got)", duration: "4:09", rating: 5 },
+                    { name: "Skypager", duration: "2:13", rating: 3 },
+                    { name: "What?", duration: "2:29", rating: 3 },
+                    { name: "Scenario", duration: "4:10", rating: 5 }
+                ]
+            },
+            {
+                title: "Madvillainy",
+                artist: "Madvillain",
+                cover: "https://upload.wikimedia.org/wikipedia/en/5/5e/Madvillainy_cover.png",
+                release: "March 23, 2004",
+                rating: 5,
+                genre: "hiphop",
+                tracks: [
+                    { name: "The Illest Villains", duration: "1:55", rating: 4 },
+                    { name: "Accordion", duration: "1:58", rating: 5 },
+                    { name: "Meat Grinder", duration: "2:11", rating: 5 },
+                    { name: "Bistro", duration: "1:07", rating: 3 },
+                    { name: "Raid", duration: "2:39", rating: 5 },
+                    { name: "America's Most Blunted", duration: "3:54", rating: 5 },
+                    { name: "Sickfit", duration: "1:21", rating: 3 },
+                    { name: "Rainbows", duration: "2:51", rating: 4 },
+                    { name: "Curls", duration: "1:34", rating: 4 },
+                    { name: "Do Not Fire!", duration: "0:52", rating: 3 },
+                    { name: "Money Folder", duration: "3:04", rating: 5 },
+                    { name: "Shadows of Tomorrow", duration: "2:36", rating: 4 },
+                    { name: "Operation Lifesaver aka Mint Test", duration: "1:30", rating: 3 },
+                    { name: "Figaro", duration: "2:25", rating: 5 },
+                    { name: "Hardcore Hustle", duration: "1:20", rating: 3 },
+                    { name: "Strange Ways", duration: "1:54", rating: 4 },
+                    { name: "Fancy Clown", duration: "2:14", rating: 4 },
+                    { name: "Eye", duration: "0:50", rating: 3 },
+                    { name: "Supervillain Theme", duration: "0:42", rating: 3 },
+                    { name: "All Caps", duration: "2:10", rating: 5 },
+                    { name: "Great Day", duration: "2:13", rating: 4 },
+                    { name: "Rhinestone Cowboy", duration: "3:58", rating: 5 }
+                ]
+            },
+            // Metal Albums
+            {
+                title: "Kind of Blue",
+                artist: "Miles Davis",
+                cover: "https://upload.wikimedia.org/wikipedia/en/9/9c/MilesDavisKindofBlue.jpg",
+                release: "August 17, 1959",
+                rating: 5,
+                genre: "metal",
+                tracks: [
+                    { name: "So What", duration: "9:22", rating: 5 },
+                    { name: "Freddie Freeloader", duration: "9:46", rating: 5 },
+                    { name: "Blue in Green", duration: "5:37", rating: 5 },
+                    { name: "All Blues", duration: "11:33", rating: 5 },
+                    { name: "Flamenco Sketches", duration: "9:26", rating: 5 }
+                ]
+            },
+            {
+                title: "A Love Supreme",
+                artist: "John Coltrane",
+                cover: "https://upload.wikimedia.org/wikipedia/en/2/2e/A_Love_Supreme.jpg",
+                release: "February 1965",
+                rating: 5,
+                genre: "metal",
+                tracks: [
+                    { name: "Part I: Acknowledgement", duration: "7:42", rating: 5 },
+                    { name: "Part II: Resolution", duration: "7:20", rating: 5 },
+                    { name: "Part III: Pursuance", duration: "10:41", rating: 5 },
+                    { name: "Part IV: Psalm", duration: "7:02", rating: 5 }
+                ]
+            },
+            {
+                title: "Time Out",
+                artist: "The Dave Brubeck Quartet",
+                cover: "https://upload.wikimedia.org/wikipedia/en/b/b4/Time_out_album_cover.jpg",
+                release: "December 14, 1959",
+                rating: 5,
+                genre: "metal",
+                tracks: [
+                    { name: "Blue Rondo à la Turk", duration: "6:44", rating: 5 },
+                    { name: "Strange Meadow Lark", duration: "7:22", rating: 5 },
+                    { name: "Take Five", duration: "5:24", rating: 5 },
+                    { name: "Three to Get Ready", duration: "5:24", rating: 5 },
+                    { name: "Kathy's Waltz", duration: "4:48", rating: 5 },
+                    { name: "Everybody's Jumpin'", duration: "4:23", rating: 5 },
+                    { name: "Pick Up Sticks", duration: "4:16", rating: 5 }
+                ]
+            },
+            {
+                title: "Head Hunters",
+                artist: "Herbie Hancock",
+                cover: "https://upload.wikimedia.org/wikipedia/en/1/1b/Head_Hunters.jpg",
+                release: "October 13, 1973",
+                rating: 5,
+                genre: "metal",
+                tracks: [
+                    { name: "Chameleon", duration: "15:41", rating: 5 },
+                    { name: "Watermelon Man", duration: "6:29", rating: 5 },
+                    { name: "Sly", duration: "10:15", rating: 5 },
+                    { name: "Vein Melter", duration: "9:09", rating: 5 }
+                ]
+            },
+            {
+                title: "The Black Saint and the Sinner Lady",
+                artist: "Charles Mingus",
+                cover: "https://upload.wikimedia.org/wikipedia/en/3/3d/The_Black_Saint_and_the_Sinner_Lady.jpg",
+                release: "January 1963",
+                rating: 5,
+                genre: "metal",
+                tracks: [
+                    { name: "Track A - Solo Dancer", duration: "6:39", rating: 5 },
+                    { name: "Track B - Duet Solo Dancers", duration: "6:45", rating: 5 },
+                    { name: "Track C - Group Dancers", duration: "7:22", rating: 5 },
+                    { name: "Mode D - Trio and Group Dancers", duration: "6:17", rating: 5 },
+                    { name: "Mode E - Single Solos and Group Dance", duration: "6:35", rating: 5 },
+                    { name: "Group and Solo Dance", duration: "7:38", rating: 5 }
+                ]
+            },
+            // Pop Albums
+            {
+                title: "Thriller",
+                artist: "Michael Jackson",
+                cover: "https://upload.wikimedia.org/wikipedia/en/5/55/Michael_Jackson_-_Thriller.png",
+                release: "November 30, 1982",
+                rating: 5,
+                genre: "pop",
+                tracks: [
+                    { name: "Wanna Be Startin' Somethin'", duration: "6:03", rating: 5 },
+                    { name: "Baby Be Mine", duration: "4:20", rating: 4 },
+                    { name: "The Girl Is Mine", duration: "3:42", rating: 4 },
+                    { name: "Thriller", duration: "5:58", rating: 5 },
+                    { name: "Beat It", duration: "4:18", rating: 5 },
+                    { name: "Billie Jean", duration: "4:54", rating: 5 },
+                    { name: "Human Nature", duration: "4:06", rating: 5 },
+                    { name: "P.Y.T. (Pretty Young Thing)", duration: "3:59", rating: 5 },
+                    { name: "The Lady in My Life", duration: "5:00", rating: 4 }
+                ]
+            },
+            {
+                title: "Like a Virgin",
+                artist: "Madonna",
+                cover: "https://upload.wikimedia.org/wikipedia/en/0/0e/Madonna_-_Like_a_Virgin_%28album%29.png",
+                release: "November 12, 1984",
+                rating: 4.5,
+                genre: "pop",
+                tracks: [
+                    { name: "Material Girl", duration: "4:00", rating: 5 },
+                    { name: "Angel", duration: "3:56", rating: 4 },
+                    { name: "Like a Virgin", duration: "3:38", rating: 5 },
+                    { name: "Over and Over", duration: "4:12", rating: 4 },
+                    { name: "Love Don't Live Here Anymore", duration: "4:47", rating: 4 },
+                    { name: "Dress You Up", duration: "4:01", rating: 5 },
+                    { name: "Shoo-Bee-Doo", duration: "5:16", rating: 3 },
+                    { name: "Pretender", duration: "4:30", rating: 3 },
+                    { name: "Stay", duration: "4:07", rating: 4 }
+                ]
+            },
+            {
+                title: "21",
+                artist: "Adele",
+                cover: "https://upload.wikimedia.org/wikipedia/en/1/1b/Adele_-_21.png",
+                release: "January 24, 2011",
+                rating: 4.5,
+                genre: "pop",
+                tracks: [
+                    { name: "Rolling in the Deep", duration: "3:48", rating: 5 },
+                    { name: "Rumour Has It", duration: "3:43", rating: 4 },
+                    { name: "Turning Tables", duration: "4:10", rating: 4 },
+                    { name: "Don't You Remember", duration: "4:03", rating: 4 },
+                    { name: "Set Fire to the Rain", duration: "4:02", rating: 5 },
+                    { name: "He Won't Go", duration: "4:38", rating: 4 },
+                    { name: "Take It All", duration: "3:48", rating: 4 },
+                    { name: "I'll Be Waiting", duration: "4:01", rating: 4 },
+                    { name: "One and Only", duration: "5:48", rating: 4 },
+                    { name: "Lovesong", duration: "5:16", rating: 4 },
+                    { name: "Someone Like You", duration: "4:45", rating: 5 }
+                ]
+            },
+            {
+                title: "1989",
+                artist: "Taylor Swift",
+                cover: "https://upload.wikimedia.org/wikipedia/en/f/f6/Taylor_Swift_-_1989.png",
+                release: "October 27, 2014",
+                rating: 4.5,
+                genre: "pop",
+                tracks: [
+                    { name: "Welcome to New York", duration: "3:32", rating: 4 },
+                    { name: "Blank Space", duration: "3:51", rating: 5 },
+                    { name: "Style", duration: "3:51", rating: 5 },
+                    { name: "Out of the Woods", duration: "3:55", rating: 4 },
+                    { name: "All You Had to Do Was Stay", duration: "3:13", rating: 4 },
+                    { name: "Shake It Off", duration: "3:39", rating: 5 },
+                    { name: "I Wish You Would", duration: "3:27", rating: 4 },
+                    { name: "Bad Blood", duration: "3:31", rating: 4 },
+                    { name: "Wildest Dreams", duration: "3:40", rating: 5 },
+                    { name: "How You Get the Girl", duration: "4:07", rating: 4 },
+                    { name: "This Love", duration: "4:10", rating: 4 },
+                    { name: "I Know Places", duration: "3:15", rating: 4 },
+                    { name: "Clean", duration: "4:31", rating: 5 }
+                ]
+            },
+            {
+                title: "23323232",
+                artist: "3233232 Swift",
+                cover: "https://upload.wikimedia.org/wikipedia/en/f/f6/Taylor_Swift_-_1989.png",
+                release: "October 27, 2014",
+                rating: 4.5,
+                genre: "pop",
+                tracks: [
+                    { name: "1", duration: "3:32", rating: 4 },
+                    { name: "1 Space", duration: "3:51", rating: 5 },
+                    { name: "3323", duration: "3:51", rating: 5 },
+                    { name: "4324 of the Woods", duration: "3:55", rating: 4 },
+                    { name: "435 You Had to Do Was Stay", duration: "3:13", rating: 4 },
+                    { name: "53454323 It Off", duration: "3:39", rating: 5 },
+                    { name: "I 324324 You Would", duration: "3:27", rating: 4 },
+                    { name: "231 Blood", duration: "3:31", rating: 4 },
+                    { name: "Wil2332dest Dreams", duration: "3:40", rating: 5 },
+                    { name: "Ho3232w You Get the Girl", duration: "4:07", rating: 4 },
+                    { name: "This Love", duration: "4:10", rating: 4 },
+                    { name: "I K3232now Places", duration: "3:15", rating: 4 },
+                    { name: "Cl2332ean", duration: "4:31", rating: 5 }
+                ]
+            },
+            {
+                title: "æææææææææææææææææææ",
+                artist: "Taylor Swift",
+                cover: "https://upload.wikimedia.org/wikipedia/en/f/f6/Taylor_Swift_-_1989.png",
+                release: "October 27, 2014",
+                rating: 4.5,
+                genre: "pop",
+                tracks: [
+                    { name: "Welcome to New York", duration: "3:32", rating: 4 },
+                    { name: "Blank Space", duration: "3:51", rating: 5 },
+                    { name: "Style", duration: "3:51", rating: 5 },
+                    { name: "Out of the Woods", duration: "3:55", rating: 4 },
+                    { name: "All You Had to Do Was Stay", duration: "3:13", rating: 4 },
+                    { name: "Shake It Off", duration: "3:39", rating: 5 },
+                    { name: "I Wish You Would", duration: "3:27", rating: 4 },
+                    { name: "Bad Blood", duration: "3:31", rating: 4 },
+                    { name: "Wildest Dreams", duration: "3:40", rating: 5 },
+                    { name: "How You Get the Girl", duration: "4:07", rating: 4 },
+                    { name: "This Love", duration: "4:10", rating: 4 },
+                    { name: "I Know Places", duration: "3:15", rating: 4 },
+                ]
+            },
+            {
+                title: "Future Nostalgia",
+                artist: "Dua Lipa",
+                cover: "https://upload.wikimedia.org/wikipedia/en/f/f5/Dua_Lipa_-_Future_Nostalgia_%28Official_Album_Cover%29.png",
+                release: "March 27, 2020",
+                rating: 4.5,
+                genre: "pop",
+                tracks: [
+                    { name: "Future Nostalgia", duration: "3:04", rating: 4 },
+                    { name: "Don't Start Now", duration: "3:03", rating: 5 },
+                    { name: "Cool", duration: "3:29", rating: 4 },
+                    { name: "Physical", duration: "3:42", rating: 5 },
+                    { name: "Levitating", duration: "3:23", rating: 5 },
+                    { name: "Pretty Please", duration: "3:14", rating: 4 },
+                    { name: "Hallucinate", duration: "3:28", rating: 5 },
+                    { name: "Love Again", duration: "4:18", rating: 5 },
+                    { name: "Break My Heart", duration: "3:41", rating: 5 },
+                    { name: "Good in Bed", duration: "3:38", rating: 3 },
+                    { name: "Boys Will Be Boys", duration: "2:46", rating: 3 }
+                ]
+            }
+        ];
+
+        // DOM Elements
+        const albumTitle = document.getElementById('albumTitle');
+        const albumArtist = document.getElementById('albumArtist');
+        const albumCover = document.getElementById('albumCover');
+        const albumRelease = document.getElementById('albumRelease');
+        const albumRating = document.getElementById('albumRating');
+        const albumGenre = document.getElementById('albumGenre');
+        const tracksContainer = document.getElementById('tracksContainer');
+        const changeAlbumBtn = document.getElementById('changeAlbumBtn');
+        const browseAllBtn = document.getElementById('browseAllBtn');
+        const browseModal = document.getElementById('browseModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const allSongsContainer = document.getElementById('allSongsContainer');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const sortRatingBtn = document.getElementById('sortRatingBtn');
+        const sortAlphaBtn = document.getElementById('sortAlphaBtn');
+        const sortAlbumBtn = document.getElementById('sortAlbumBtn');
+
+        // Current Album Index
+        let currentAlbumIndex = 0;
+
+        // Initialize with first album
+        displayAlbum(currentAlbumIndex);
+
+        // Event Listeners
+        changeAlbumBtn.addEventListener('click', () => {
+            currentAlbumIndex = Math.floor(Math.random() * musicDatabase.length);
+            displayAlbum(currentAlbumIndex);
+        });
+
+        browseAllBtn.addEventListener('click', () => {
+            browseModal.classList.remove('hidden');
+            displayAllSongs();
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            browseModal.classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        browseModal.addEventListener('click', (e) => {
+            if (e.target === browseModal) {
+                browseModal.classList.add('hidden');
+            }
+        });
+
+        // Filter buttons
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                displayAllSongs(button.dataset.filter);
+            });
+        });
+
+        // Sort buttons
+        sortRatingBtn.addEventListener('click', () => {
+            sortRatingBtn.classList.add('bg-blue-600');
+            sortRatingBtn.classList.remove('bg-gray-700');
+            sortAlphaBtn.classList.remove('bg-blue-600');
+            sortAlphaBtn.classList.add('bg-gray-700');
+            sortAlbumBtn.classList.remove('bg-blue-600');
+            sortAlbumBtn.classList.add('bg-gray-700');
+            displayAllSongs(null, 'rating');
+        });
+
+        sortAlphaBtn.addEventListener('click', () => {
+            sortAlphaBtn.classList.add('bg-blue-600');
+            sortAlphaBtn.classList.remove('bg-gray-700');
+            sortRatingBtn.classList.remove('bg-blue-600');
+            sortRatingBtn.classList.add('bg-gray-700');
+            sortAlbumBtn.classList.remove('bg-blue-600');
+            sortAlbumBtn.classList.add('bg-gray-700');
+            displayAllSongs(null, 'alpha');
+        });
+
+        sortAlbumBtn.addEventListener('click', () => {
+            sortAlbumBtn.classList.add('bg-blue-600');
+            sortAlbumBtn.classList.remove('bg-gray-700');
+            sortRatingBtn.classList.remove('bg-blue-600');
+            sortRatingBtn.classList.add('bg-gray-700');
+            sortAlphaBtn.classList.remove('bg-blue-600');
+            sortAlphaBtn.classList.add('bg-gray-700');
+            displayAllSongs(null, 'album');
+        });
+
+        // Functions
+        function displayAlbum(index) {
+            const album = musicDatabase[index];
+            
+            albumTitle.textContent = album.title;
+            albumArtist.textContent = album.artist;
+            albumCover.src = album.cover;
+            albumRelease.textContent = `Released: ${album.release}`;
+            albumRating.textContent = album.rating;
+            albumGenre.textContent = album.genre;
+            
+            // Clear previous tracks
+            tracksContainer.innerHTML = '';
+            
+            // Add new tracks
+            album.tracks.forEach((track, i) => {
+                const trackElement = document.createElement('div');
+                trackElement.className = 'track-item bg-gray-800 p-4 rounded-lg flex justify-between items-center';
+                trackElement.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="text-gray-400 mr-4">${i + 1}</span>
+                        <span>${track.name}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-gray-400 mr-4">${track.duration}</span>
+                        <span class="text-yellow-400">${'★'.repeat(track.rating)}${'☆'.repeat(5 - track.rating)}</span>
+                    </div>
+                `;
+                tracksContainer.appendChild(trackElement);
+            });
+        }
+
+        function displayAllSongs(filter = 'all', sort = 'rating') {
+            // Clear container
+            allSongsContainer.innerHTML = '';
+            
+            // Flatten all songs with album info
+            let allSongs = [];
+            musicDatabase.forEach(album => {
+                album.tracks.forEach(track => {
+                    allSongs.push({
+                        ...track,
+                        albumTitle: album.title,
+                        albumArtist: album.artist,
+                        albumCover: album.cover,
+                        albumGenre: album.genre,
+                        albumRating: album.rating
+                    });
+                });
+            });
+            
+            // Apply filter
+            if (filter !== 'all') {
+                allSongs = allSongs.filter(song => song.albumGenre === filter);
+            }
+            
+            // Apply sorting
+            switch(sort) {
+                case 'rating':
+                    allSongs.sort((a, b) => b.rating - a.rating || b.albumRating - a.albumRating);
+                    break;
+                case 'alpha':
+                    allSongs.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'album':
+                    allSongs.sort((a, b) => a.albumTitle.localeCompare(b.albumTitle));
+                    break;
+            }
+            
+            // Display songs
+            allSongs.forEach(song => {
+                const songElement = document.createElement('div');
+                songElement.className = 'song-item bg-gray-700 p-4 rounded-lg cursor-pointer hover:bg-gray-600 transition';
+                songElement.innerHTML = `
+                    <div class="flex items-center">
+                        <img src="${song.albumCover}" alt="${song.albumTitle}" class="w-12 h-12 rounded mr-4">
+                        <div class="flex-1">
+                            <div class="font-semibold">${song.name}</div>
+                            <div class="text-sm text-gray-400">${song.albumArtist} • ${song.albumTitle}</div>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-gray-400 mr-4">${song.duration}</span>
+                            <span class="text-yellow-400">${'★'.repeat(song.rating)}${'☆'.repeat(5 - song.rating)}</span>
+                        </div>
+                    </div>
+                `;
+                
+                songElement.addEventListener('click', () => {
+                    // Find the album index for this song
+                    const albumIndex = musicDatabase.findIndex(album => 
+                        album.title === song.albumTitle && album.artist === song.albumArtist
+                    );
+                    
+                    if (albumIndex !== -1) {
+                        currentAlbumIndex = albumIndex;
+                        displayAlbum(currentAlbumIndex);
+                        browseModal.classList.add('hidden');
+                    }
+                });
+                
+                allSongsContainer.appendChild(songElement);
+            });
+        }
+    </script>
+</body>
+</html>
